@@ -20,7 +20,15 @@ namespace DynamicNavbar.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddMvc().AddJsonOptions(opt => opt.JsonSerializerOptions.PropertyNamingPolicy = null);
+
             services.AddDbContext<DataContext>(context => { context.UseInMemoryDatabase("NavDb"); }); 
             services.AddControllers();
 
@@ -32,6 +40,8 @@ namespace DynamicNavbar.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("MyPolicy");
+
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
