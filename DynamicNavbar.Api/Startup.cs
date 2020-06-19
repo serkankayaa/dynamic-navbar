@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Sieve.Services;
 
 namespace DynamicNavbar.Api
 {
@@ -20,6 +21,8 @@ namespace DynamicNavbar.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddScoped<ISieveProcessor, SieveProcessor>();
+            services.AddSingleton<ISieveProcessor, SieveProcessor>();
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {
                 builder.AllowAnyOrigin()

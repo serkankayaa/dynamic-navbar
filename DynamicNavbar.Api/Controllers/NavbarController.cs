@@ -2,8 +2,13 @@
 using DynamicNavbar.Api.Entity;
 using DynamicNavbar.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Sieve.Models;
+using Sieve.Services;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DynamicNavbar.Api.Controllers
 {
@@ -12,29 +17,28 @@ namespace DynamicNavbar.Api.Controllers
     public class NavbarController : ControllerBase
     {
         private DataContext _context;
+        private readonly ISieveProcessor _sieveProcessor;
 
-        public NavbarController(DataContext context)
+        public NavbarController(DataContext context, ISieveProcessor sieveProcessor)
         {
             _context = context;
+            _sieveProcessor = sieveProcessor;
             this.CreateMenuData();
         }
 
         [HttpGet]
-        public IEnumerable<MenuDto> Get()
+        public object Get([FromQuery]SieveModel model)
         {
+
             var menuData = _context.Menu.Where(c => c.Id > 0).Select(c => new MenuDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 ContentHeader = c.ContentHeader,
-                Products = c.Products.Select(k => new ProductDto
-                {
-                    Id = k.Id,
-                    ProductName = k.ProductName
-                }).ToList()
-            }).ToList();
+            });
 
-            return menuData;
+            var result = _sieveProcessor.Apply(model, menuData);
+            return result;
         }
 
         private void CreateMenuData()
